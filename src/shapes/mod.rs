@@ -6,7 +6,7 @@ use crate::Ray;
 pub struct HitRecord<'a> {
     pub p: Point3,
     pub normal: Vec3,
-    pub material: &'a Box<dyn Material>,
+    pub material: &'a Arc<dyn Material>,
     pub t: f64,
     pub front_face: bool,
 }
@@ -29,7 +29,7 @@ pub trait Hittable {
 pub mod sphere;
 use sphere::Sphere;
 
-pub fn sphere(center: Point3, radius: f64, material: Box<dyn Material>) -> Sphere {
+pub fn sphere(center: Point3, radius: f64, material: Arc<dyn Material>) -> Sphere {
     Sphere {
         center,
         radius,
@@ -43,7 +43,7 @@ pub struct HittableList {
 
 impl HittableList {
     pub fn add(&mut self, object: Arc<dyn Hittable>) {
-        self.objects.push(object.clone());
+        self.objects.push(object);
     }
     #[allow(dead_code)]
     pub fn clear(&mut self) {

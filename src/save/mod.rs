@@ -6,11 +6,9 @@ use crate::math::base::clamp;
 use crate::math::vec3::{ColorRGB, Vector};
 
 pub fn ppm_header(mut file: &File, image_width: i32, image_height: i32) -> Result<()> {
-    let mut buff = Vec::new();
-    writeln!(&mut buff, "P3")?;
-    writeln!(&mut buff, "{} {}", image_width, image_height)?;
-    writeln!(&mut buff, "255")?;
-    file.write(&buff)?;
+    writeln!(&mut file, "P3")?;
+    writeln!(&mut file, "{} {}", image_width, image_height)?;
+    writeln!(&mut file, "255")?;
 
     Ok(())
 }

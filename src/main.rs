@@ -1,7 +1,8 @@
 #[allow(dead_code)]
 use std::fs::File;
-use std::io::Error;
+use std::io::{Error, Write};
 
+use std::sync::Arc;
 use std::time::Instant;
 
 // mod CONSTANTS;
@@ -36,7 +37,7 @@ fn main() -> Result<(), Error> {
 
     //?Image
     let aspect_ratio = 16.0 / 9.0;
-    let image_width = 1200;
+    let image_width = 200;
     let image_height = (image_width as f64 / aspect_ratio) as i32;
     let samples_per_pixel = 10;
     let max_depth = 50;
@@ -46,10 +47,10 @@ fn main() -> Result<(), Error> {
 
     pub fn random_scene() -> HittableList {
         let mut world = HittableList { objects: vec![] };
-        let ground_material = Box::new(Lambertian {
+        let ground_material = Arc::new(Lambertian {
             albedo: color(0.5, 0.5, 0.5),
         });
-        world.add(Box::new(sphere(
+        world.add(Arc::new(sphere(
             point(0.0, -1000.0, 0.0),
             1000.0,
             ground_material,
@@ -65,47 +66,47 @@ fn main() -> Result<(), Error> {
                 );
 
                 if (center - point(4.0, 0.2, 0.0)).length() > 0.9 {
-                    let sphere_material: Box<dyn Material>;
+                    let sphere_material: Arc<dyn Material>;
                     if choose_mat < 0.8 {
                         // diffuse
                         let albedo = ColorRGB::random(0.0, 1.0) * ColorRGB::random(0.0, 1.0);
-                        sphere_material = Box::new(Lambertian { albedo });
-                        world.add(Box::new(sphere(center, 0.2, sphere_material)));
+                        sphere_material = Arc::new(Lambertian { albedo });
+                        world.add(Arc::new(sphere(center, 0.2, sphere_material)));
                     } else if choose_mat < 0.95 {
                         // metal
                         let albedo = ColorRGB::random(0.5, 1.0);
                         let fuzz = random_f64(0.0, 0.5);
-                        sphere_material = Box::new(Metal {
+                        sphere_material = Arc::new(Metal {
                             albedo,
                             roughness: fuzz,
                         });
-                        world.add(Box::new(sphere(center, 0.2, sphere_material)));
+                        world.add(Arc::new(sphere(center, 0.2, sphere_material)));
                     } else {
                         // glass
-                        sphere_material = Box::new(Dielectric {
+                        sphere_material = Arc::new(Dielectric {
                             index_of_refraction: 1.5,
                         });
-                        world.add(Box::new(sphere(center, 0.2, sphere_material)));
+                        world.add(Arc::new(sphere(center, 0.2, sphere_material)));
                     }
                 }
             }
         }
 
-        let material1 = Box::new(Dielectric {
+        let material1 = Arc::new(Dielectric {
             index_of_refraction: 1.5,
         });
-        world.add(Box::new(sphere(point(0.0, 1.0, 0.0), 1.0, material1)));
+        world.add(Arc::new(sphere(point(0.0, 1.0, 0.0), 1.0, material1)));
 
-        let material2 = Box::new(Lambertian {
+        let material2 = Arc::new(Lambertian {
             albedo: color(0.4, 0.2, 0.1),
         });
-        world.add(Box::new(sphere(point(-4.0, 1.0, 0.0), 1.0, material2)));
+        world.add(Arc::new(sphere(point(-4.0, 1.0, 0.0), 1.0, material2)));
 
-        let material3 = Box::new(Metal {
+        let material3 = Arc::new(Metal {
             albedo: color(0.7, 0.6, 0.5),
             roughness: 0.0,
         });
-        world.add(Box::new(sphere(point(4.0, 1.0, 0.0), 1.0, material3)));
+        world.add(Arc::new(sphere(point(4.0, 1.0, 0.0), 1.0, material3)));
 
         return world;
     }
@@ -134,15 +135,18 @@ fn main() -> Result<(), Error> {
 
     //?Renderer
     for j in (0..image_height).rev() {
-        eprintln!(
-            "ScanLine {}/{}    {}%",
+        print!(
+            "\rScanLine {}/{}  {:?}%  Time Elapsed: {:.2?}s...",
             image_height - j,
             image_height,
-            (image_height - j) / image_height
+            ((image_height as f64 - j as f64) / image_height as f64 * 100.0) as i32,
+            before.elapsed().as_secs_f32()
         );
+        std::io::stdout().flush()?;
         for i in 0..image_width {
             let mut pixel_color = color(0.0, 0.0, 0.0);
-            for j in 0..samples_per_pixel {
+            // dont change sample to j otherwise it wont work!
+            for _sample in 0..samples_per_pixel {
                 let u = (i as f64 + random_f64(0.0, 1.0)) / (image_width as f64 - 1.0);
                 let v = (j as f64 + random_f64(0.0, 1.0)) / (image_height as f64 - 1.0);
                 let ray = camera.get_ray(u, v);
