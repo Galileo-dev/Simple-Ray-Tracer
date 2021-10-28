@@ -43,8 +43,8 @@ impl Camera {
         let viewport_width = aspect_ratio * viewport_height;
 
         let w = unit_vector(lookfrom - lookat);
-        let u = unit_vector(cross(vup, w));
-        let v = cross(w, u);
+        let u = unit_vector(cross(&vup, &w));
+        let v = cross(&w, &u);
 
         let focal_length = 1.0;
         let origin = lookfrom;

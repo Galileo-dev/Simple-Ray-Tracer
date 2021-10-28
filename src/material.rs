@@ -49,7 +49,7 @@ impl Material for Metal {
         let attenuation = self.albedo;
 
         // dot(scattered.direction(), rec.normal) > 0.0
-        if dot(scattered.direction(), rec.normal) > 0.0 {
+        if dot(&scattered.direction(), &rec.normal) > 0.0 {
             Some((attenuation, scattered))
         } else {
             None
@@ -72,7 +72,7 @@ impl Material for Dielectric {
         };
         let attenuation = color(1.0, 1.0, 1.0);
         let unit_direction = unit_vector(r_in.direction());
-        let cos_theta = min(dot(-unit_direction, rec.normal), 1.0);
+        let cos_theta = min(dot(&-unit_direction, &rec.normal), 1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
         let cannot_refract = refraction_ratio * sin_theta > 1.0;
@@ -97,11 +97,11 @@ impl Material for Dielectric {
 }
 
 pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
-    return v - 2.0 * dot(v, n) * n;
+    return v - 2.0 * dot(&v, &n) * n;
 }
 
 pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
-    let cos_theta = min(dot(-uv, n), 1.0);
+    let cos_theta = min(dot(&-uv, &n), 1.0);
     let r_out_perp = etai_over_etat * (uv + (cos_theta * n));
     let r_out_parallel = -(((1.0 - r_out_perp.length_squared()).abs()).sqrt()) * n;
     return r_out_perp + r_out_parallel;

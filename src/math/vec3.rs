@@ -81,11 +81,11 @@ pub fn unit_vector(vec3: Vec3) -> Vec3 {
     return vec3 / vec3.length();
 }
 
-pub fn dot(r: Vec3, other: Vec3) -> f64 {
+pub fn dot(r: &Vec3, other: &Vec3) -> f64 {
     return r.x * other.x + r.y * other.y + r.z * other.z;
 }
 
-pub fn cross(r: Vec3, other: Vec3) -> Vec3 {
+pub fn cross(r: &Vec3, other: &Vec3) -> Vec3 {
     return Vec3 {
         x: r.y * other.z - r.z * other.y,
         y: r.z * other.x - r.x * other.z,
