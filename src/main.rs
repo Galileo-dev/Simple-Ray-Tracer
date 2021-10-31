@@ -5,14 +5,10 @@ use std::io::{BufWriter, Error, Write};
 use std::sync::Arc;
 use std::time::Instant;
 
-// mod CONSTANTS;
-// use CONSTANTS::{INFINITY, PI};
-
 mod math;
-use math::constants::INFINITY;
 use math::rand::random_f64;
 use math::ray::{new_ray, ray_color, Ray};
-use math::vec3::{color, point, unit_vector, vec3, ColorRGB, Point3, Vec3, Vector};
+use math::vec3::{color, point, vec3, ColorRGB, Vector};
 
 mod save;
 
@@ -28,7 +24,7 @@ use camera::Camera;
 use save::ppm_header;
 
 use crate::material::{Dielectric, Metal};
-use crate::save::{save_color, write_color};
+use crate::save::save_color;
 use crate::shapes::HittableList;
 fn main() -> Result<(), Error> {
     //?Create a new file for image

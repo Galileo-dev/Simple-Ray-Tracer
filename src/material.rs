@@ -1,8 +1,3 @@
-// use raytracing::math_helper::{
-//     color, dot, min, random_f64, random_in_unit_sphere, random_unit_vector, unit_vector, ColorRGB,
-//     Vec3, Vector,
-// };
-
 use crate::math::base::min;
 use crate::math::rand::{random_f64, random_in_unit_sphere, random_unit_vector};
 use crate::math::vec3::{color, dot, unit_vector, ColorRGB, Vec3, Vector};
@@ -15,7 +10,6 @@ pub trait Material {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(ColorRGB, Ray)>;
 }
 
-// Light Scatterer
 #[derive(Debug, Copy, Clone)]
 pub struct Lambertian {
     pub albedo: ColorRGB,
@@ -51,7 +45,6 @@ impl Material for Metal {
         );
         let attenuation = self.albedo;
 
-        // dot(scattered.direction(), rec.normal) > 0.0
         if dot(&scattered.direction(), &rec.normal) > 0.0 {
             Some((attenuation, scattered))
         } else {
@@ -86,16 +79,8 @@ impl Material for Dielectric {
                 refract(&unit_direction, &rec.normal, refraction_ratio)
             };
 
-        //let refracted = refract(unit_direction, rec.normal, refraction_ratio);
         let scattered = new_ray(&rec.p, &direction);
         return Some((attenuation, scattered));
-
-        // dot(scattered.direction(), rec.normal) > 0.0
-        // if dot(scattered.direction(), rec.normal) > 0.0 {
-        //     Some((attenuation, scattered))
-        // } else {
-        //     None
-        // }
     }
 }
 
