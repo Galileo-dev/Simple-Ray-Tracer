@@ -12,7 +12,7 @@ use crate::{new_ray, Ray};
 use super::HitRecord;
 
 pub trait Material {
-    fn scatter(&self, r_in: Ray, rec: &HitRecord) -> Option<(ColorRGB, Ray)>;
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(ColorRGB, Ray)>;
 }
 
 // Light Scatterer
@@ -23,14 +23,14 @@ pub struct Lambertian {
 
 impl Material for Lambertian {
     #[allow(unused_variables)]
-    fn scatter(&self, r_in: Ray, rec: &HitRecord) -> Option<(ColorRGB, Ray)> {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(ColorRGB, Ray)> {
         let mut scatter_direction = rec.normal + random_unit_vector();
 
         if scatter_direction.near_zero() {
             scatter_direction = rec.normal;
         }
 
-        let scattered = new_ray(rec.p, scatter_direction);
+        let scattered = new_ray(&rec.p, &scatter_direction);
         let attenuation = self.albedo;
         Some((attenuation, scattered))
     }
@@ -43,9 +43,12 @@ pub struct Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, r_in: Ray, rec: &HitRecord) -> Option<(ColorRGB, Ray)> {
-        let reflected = reflect(unit_vector(r_in.direction()), rec.normal);
-        let scattered = new_ray(rec.p, reflected + self.roughness * random_in_unit_sphere());
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(ColorRGB, Ray)> {
+        let reflected = reflect(&unit_vector(r_in.direction()), &rec.normal);
+        let scattered = new_ray(
+            &rec.p,
+            &(reflected + self.roughness * random_in_unit_sphere()),
+        );
         let attenuation = self.albedo;
 
         // dot(scattered.direction(), rec.normal) > 0.0
@@ -62,7 +65,7 @@ pub struct Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, r_in: Ray, rec: &HitRecord) -> Option<(ColorRGB, Ray)> {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(ColorRGB, Ray)> {
         //let reflected = reflect(unit_vector(r_in.direction()), rec.normal);
         // let scattered = new_ray(rec.p, reflected + self.roughness * random_in_unit_sphere());
         let refraction_ratio = if rec.front_face {
@@ -78,13 +81,13 @@ impl Material for Dielectric {
         let cannot_refract = refraction_ratio * sin_theta > 1.0;
         let direction =
             if cannot_refract || reflectance(cos_theta, refraction_ratio) > random_f64(0.0, 1.0) {
-                reflect(unit_direction, rec.normal)
+                reflect(&unit_direction, &rec.normal)
             } else {
-                refract(unit_direction, rec.normal, refraction_ratio)
+                refract(&unit_direction, &rec.normal, refraction_ratio)
             };
 
         //let refracted = refract(unit_direction, rec.normal, refraction_ratio);
-        let scattered = new_ray(rec.p, direction);
+        let scattered = new_ray(&rec.p, &direction);
         return Some((attenuation, scattered));
 
         // dot(scattered.direction(), rec.normal) > 0.0
@@ -96,11 +99,11 @@ impl Material for Dielectric {
     }
 }
 
-pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
     return v - 2.0 * dot(&v, &n) * n;
 }
 
-pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
+pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
     let cos_theta = min(dot(&-uv, &n), 1.0);
     let r_out_perp = etai_over_etat * (uv + (cos_theta * n));
     let r_out_parallel = -(((1.0 - r_out_perp.length_squared()).abs()).sqrt()) * n;

@@ -25,11 +25,14 @@ impl Ray {
     }
 }
 
-pub fn new_ray(point: Point3, direction: Vec3) -> Ray {
-    Ray { point, direction }
+pub fn new_ray(point: &Point3, direction: &Vec3) -> Ray {
+    Ray {
+        point: *point,
+        direction: *direction,
+    }
 }
 
-pub fn ray_color(ray: Ray, world: &mut HittableList, depth: i32) -> ColorRGB {
+pub fn ray_color(ray: &Ray, world: &mut HittableList, depth: i32) -> ColorRGB {
     if depth <= 0 {
         return color(0.0, 0.0, 0.0);
     }
@@ -39,7 +42,7 @@ pub fn ray_color(ray: Ray, world: &mut HittableList, depth: i32) -> ColorRGB {
             let material = &rec.material;
             match material.scatter(ray, &rec) {
                 Some((attenuation, scattered)) => {
-                    return attenuation * ray_color(scattered, world, depth - 1);
+                    return attenuation * ray_color(&scattered, world, depth - 1);
                 }
 
                 None => {}

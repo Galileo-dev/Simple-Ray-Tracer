@@ -1,6 +1,6 @@
 #[allow(dead_code)]
 use std::fs::File;
-use std::io::{Error, Write};
+use std::io::{BufWriter, Error, Write};
 
 use std::sync::Arc;
 use std::time::Instant;
@@ -28,16 +28,17 @@ use camera::Camera;
 use save::ppm_header;
 
 use crate::material::{Dielectric, Metal};
-use crate::save::save_color;
+use crate::save::{save_color, write_color};
 use crate::shapes::HittableList;
 fn main() -> Result<(), Error> {
     //?Create a new file for image
     let path = "Image.ppm";
     let file = File::create(path)?;
+    let mut file = BufWriter::new(file);
 
     //?Image
     let aspect_ratio = 16.0 / 9.0;
-    let image_width = 200;
+    let image_width = 1200;
     let image_height = (image_width as f64 / aspect_ratio) as i32;
     let samples_per_pixel = 10;
     let max_depth = 50;
@@ -131,11 +132,11 @@ fn main() -> Result<(), Error> {
     let before = Instant::now();
 
     //?Choose A header
-    ppm_header(&file, image_width, image_height).expect("PPM Header Creation Failed");
+    ppm_header(&mut file, image_width, image_height).expect("PPM Header Creation Failed");
 
     //?Renderer
     for j in (0..image_height).rev() {
-        print!(
+        eprint!(
             "\rScanLine {}/{}  {:?}%  Time Elapsed: {:.2?}s...",
             image_height - j,
             image_height,
@@ -150,9 +151,10 @@ fn main() -> Result<(), Error> {
                 let u = (i as f64 + random_f64(0.0, 1.0)) / (image_width as f64 - 1.0);
                 let v = (j as f64 + random_f64(0.0, 1.0)) / (image_height as f64 - 1.0);
                 let ray = camera.get_ray(u, v);
-                pixel_color += ray_color(ray, &mut world, max_depth);
+                pixel_color += ray_color(&ray, &mut world, max_depth);
             }
-            save_color(&file, pixel_color, samples_per_pixel).expect("Failed to save color");
+            // write_color(pixel_color, samples_per_pixel);
+            save_color(&mut file, pixel_color, samples_per_pixel)?;
         }
     }
     let elapsed = before.elapsed();

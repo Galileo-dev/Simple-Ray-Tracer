@@ -76,8 +76,10 @@ impl Camera {
         let offset = self.u * rd.x() + self.v * rd.y();
 
         return new_ray(
-            self.origin + offset,
-            self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
+            &(self.origin + offset),
+            &(self.lower_left_corner + s * self.horizontal + t * self.vertical
+                - self.origin
+                - offset),
         );
     }
 }

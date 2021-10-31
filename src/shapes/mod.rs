@@ -12,7 +12,7 @@ pub struct HitRecord<'a> {
 }
 
 impl<'a> HitRecord<'a> {
-    pub fn set_face_normal(&mut self, ray: Ray, outward_normal: &Vec3) {
+    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: &Vec3) {
         self.front_face = dot(&ray.direction(), &*outward_normal) < 0.0;
         self.normal = if self.front_face {
             *outward_normal
@@ -23,7 +23,7 @@ impl<'a> HitRecord<'a> {
 }
 
 pub trait Hittable {
-    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 
 pub mod sphere;
@@ -52,7 +52,7 @@ impl HittableList {
 }
 
 impl HittableList {
-    pub fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    pub fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let mut temp_rec: Option<HitRecord> = None;
         let mut hit_anything = false;
         let mut closest_so_far = t_max;
