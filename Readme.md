@@ -24,11 +24,12 @@ A image.ppm will be produced which can then be viewed using a [PPM Viewer](https
 ![normals](images/canvas.png)
 ![glass](images/Glass.png)
 ![reflections](images/reflections.png)
+![reflections](images/final.png)
 
 
 ## Future Plans:
 - [ ] Triangles 
-- [ ] Optimise for performance
+- [x] Optimise for performance
 - [ ] Lights
 - [ ] Textures
 - [ ] Volumes

@@ -2,6 +2,8 @@ use std::fs::File;
 
 use std::io::BufWriter;
 use std::io::{Result, Write};
+use std::iter::Inspect;
+use std::time::{Duration, Instant};
 
 use crate::math::base::clamp;
 use crate::math::vec3::{ColorRGB, Vector};
@@ -38,4 +40,9 @@ pub fn save_color(
     )
     .expect("Error Writing To File");
     Ok(())
+}
+
+pub fn estimated_time(current_line: i32, total_lines: i32, elapsed_time: Duration) -> f32 {
+    let time_per_line = current_line as f32 / elapsed_time.as_secs_f32();
+    return time_per_line * total_lines as f32;
 }

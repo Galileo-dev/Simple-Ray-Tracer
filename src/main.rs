@@ -24,7 +24,7 @@ use camera::Camera;
 use save::ppm_header;
 
 use crate::material::{Dielectric, Metal};
-use crate::save::save_color;
+use crate::save::{estimated_time, save_color};
 use crate::shapes::HittableList;
 fn main() -> Result<(), Error> {
     //?Create a new file for image
@@ -33,10 +33,10 @@ fn main() -> Result<(), Error> {
     let mut file = BufWriter::new(file);
 
     //?Image
-    let aspect_ratio = 16.0 / 9.0;
-    let image_width = 1200;
+    let aspect_ratio = 3.0 / 2.0;
+    let image_width = 500;
     let image_height = (image_width as f64 / aspect_ratio) as i32;
-    let samples_per_pixel = 10;
+    let samples_per_pixel = 50;
     let max_depth = 50;
 
     //?World
@@ -137,8 +137,13 @@ fn main() -> Result<(), Error> {
             image_height - j,
             image_height,
             ((image_height as f64 - j as f64) / image_height as f64 * 100.0) as i32,
-            before.elapsed().as_secs_f32()
+            before.elapsed().as_secs_f32(),
         );
+        eprint!(
+            "Estimated Time: {}",
+            estimated_time(image_height - j, image_height, before.elapsed())
+        );
+
         std::io::stdout().flush()?;
         for i in 0..image_width {
             let mut pixel_color = color(0.0, 0.0, 0.0);
