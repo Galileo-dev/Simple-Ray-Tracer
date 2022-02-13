@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::shapes::HittableList;
 
 use super::{
@@ -32,7 +34,7 @@ pub fn new_ray(point: &Point3, direction: &Vec3) -> Ray {
     }
 }
 
-pub fn ray_color(ray: &Ray, world: &mut HittableList, depth: i32) -> ColorRGB {
+pub fn ray_color(ray: &Ray, world: Arc<HittableList>, depth: i32) -> ColorRGB {
     if depth <= 0 {
         return color(0.0, 0.0, 0.0);
     }

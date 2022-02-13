@@ -9,7 +9,7 @@ use super::{HitRecord, Hittable};
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
-    pub material: Arc<dyn Material>,
+    pub material: Arc<dyn Material + Send + Sync>,
 }
 
 impl Hittable for Sphere {
@@ -37,7 +37,7 @@ impl Hittable for Sphere {
             p: ray.at(root),
             t: root,
             normal: vec3(0.0, 0.0, 0.0),
-            material: &self.material,
+            material: self.material.clone(),
             front_face: false,
         });
         let outward_normal: Vec3 = (rec.as_ref().unwrap().p - self.center) / self.radius;

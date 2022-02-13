@@ -3,15 +3,15 @@ use std::sync::Arc;
 use crate::material::Material;
 use crate::math::vec3::{dot, Point3, Vec3};
 use crate::Ray;
-pub struct HitRecord<'a> {
+pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
-    pub material: &'a Arc<dyn Material>,
+    pub material: Arc<dyn Material>,
     pub t: f64,
     pub front_face: bool,
 }
 
-impl<'a> HitRecord<'a> {
+impl HitRecord {
     pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: &Vec3) {
         self.front_face = dot(&ray.direction(), &*outward_normal) < 0.0;
         self.normal = if self.front_face {
@@ -29,7 +29,7 @@ pub trait Hittable {
 pub mod sphere;
 use sphere::Sphere;
 
-pub fn sphere(center: Point3, radius: f64, material: Arc<dyn Material>) -> Sphere {
+pub fn sphere(center: Point3, radius: f64, material: Arc<dyn Material + Send + Sync>) -> Sphere {
     Sphere {
         center,
         radius,
@@ -38,11 +38,11 @@ pub fn sphere(center: Point3, radius: f64, material: Arc<dyn Material>) -> Spher
 }
 
 pub struct HittableList {
-    pub objects: Vec<Arc<dyn Hittable>>,
+    pub objects: Vec<Arc<dyn Hittable + Send + Sync>>,
 }
 
 impl HittableList {
-    pub fn add(&mut self, object: Arc<dyn Hittable>) {
+    pub fn add(&mut self, object: Arc<dyn Hittable + Send + Sync>) {
         self.objects.push(object);
     }
     #[allow(dead_code)]
