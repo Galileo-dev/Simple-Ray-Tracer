@@ -115,10 +115,10 @@ fn main() -> Result<(), Error> {
 
     //?Camera
 
-    let lookfrom = point(13.0, 2.0, 3.0);
+    let lookfrom = point(2.0, 13.0, 12.0);
     let lookat = point(0.0, 0.0, 0.0);
     // let dist_to_focus = (lookfrom - lookat).length();
-    let dist_to_focus = 10.0;
+    let dist_to_focus = 13.0;
     let camera = Arc::new(Camera::new(
         lookfrom,
         lookat,
